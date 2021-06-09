@@ -1,0 +1,14 @@
+micronaut:
+  application:
+    name: orangeTalents04TemplatePixKeymanagerGrpc
+
+datasources:
+  default:
+    url: jdbc:mysql://localhost:3306/key_manager_grpc?createDatabaseIfNotExist=true
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 'root'
+    schema-generate: CREATE_DROP
+    dialect: MYSQL
+
+jpa.default.properties.hibernate.hbm2ddl.auto: update
