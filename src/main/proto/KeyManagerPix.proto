@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "br.com.fmchagas.key_manager_grpc.grpc";
+//option java_outer_classname = "KeyManagerPix";
+
+package br.com.fmchagas.key_manager_grpc.grpc;
+
+service NovaChavePixService{
+  rpc registrar(NovaChavePixRequest) returns (NovaChavePixResponse){}
+}
+
+message NovaChavePixRequest{
+  string clienteId = 1;
+  TipoChave tipoChave = 2;
+  string chaveDoPix = 3;
+  TipoConta tipoConta = 4;
+}
+
+message NovaChavePixResponse{
+  string pixId = 1;
+}
+
+enum TipoChave{
+  UN_KNOWN_TIPO_CHAVE = 0;
+  CPF = 1;
+  TEL_CELULAR = 2;
+  EMAIL = 3;
+  CHAVE_ALEATORIA = 4;
+}
+
+enum TipoConta{
+  UN_KNOWN_TIPO_CONTA = 0;
+  POUPANCA = 1;
+  CORRENTE = 2;
+}
