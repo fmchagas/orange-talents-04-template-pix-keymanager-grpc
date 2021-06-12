@@ -65,24 +65,24 @@ internal class NovaChavePixEndPointTest(
         val existente = repository.save(
             ChavePix(
                 UUID.fromString("5260263c-a3c1-4727-ae32-3bdb2538841b"),
-                TipoChave.CPF, "73007268010", TipoConta.POUPANCA,
+                TipoDeChave.CPF, "73007268010", TipoDeConta.POUPANCA,
             )
         )
 
         val error = assertThrows<StatusRuntimeException> {
             clientGrpc.registrar(
                 NovaChavePixRequest.newBuilder()
-                    .setClienteId(existente.chavePix)
-                    .setTipoChave(existente.tipoChave)
+                    .setClienteId(existente.clienteId.toString())
+                    .setTipoChave(TipoChave.CPF)
                     .setChaveDoPix(existente.chavePix)
-                    .setTipoConta(existente.tipoConta)
+                    .setTipoConta(TipoConta.POUPANCA)
                     .build()
             )
         }
 
         with(error) {
             assertEquals(Status.ALREADY_EXISTS.code, status.code)
-            assertEquals("chave pix já cadastrada no sistema", status.description)
+            assertEquals("chave pix '${existente.chavePix}' já cadastrada no sistema", status.description)
         }
     }
 

@@ -1,12 +1,10 @@
 package br.com.fmchagas.key_manager_grpc.chave_pix
 
-import br.com.fmchagas.key_manager_grpc.grpc.TipoChave
-import br.com.fmchagas.key_manager_grpc.grpc.TipoConta
+
 import java.time.Instant
 import java.util.*
 import javax.persistence.*
 import javax.persistence.GenerationType.*
-import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.NotNull
 
@@ -18,16 +16,16 @@ class ChavePix(
     @field:NotNull
     @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
-    val tipoChave: TipoChave,
+    val tipoChave: TipoDeChave,
 
     @field:NotEmpty
-    @Column(nullable = false, length = 77)
+    @Column(nullable = false, length = 77, unique = true)
     val chavePix: String,
 
     @field:NotNull
     @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
-    val tipoConta: TipoConta
+    val tipoConta: TipoDeConta
 ) {
 
     @Id @GeneratedValue(strategy = IDENTITY)
