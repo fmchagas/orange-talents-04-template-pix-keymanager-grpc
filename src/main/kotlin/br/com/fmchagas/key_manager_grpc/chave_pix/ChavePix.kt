@@ -25,7 +25,11 @@ class ChavePix(
     @field:NotNull
     @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
-    val tipoConta: TipoDeConta
+    val tipoConta: TipoDeConta,
+
+    @field:NotNull
+    @Embedded
+    val conta: Conta
 ) {
 
     @Id @GeneratedValue(strategy = IDENTITY)

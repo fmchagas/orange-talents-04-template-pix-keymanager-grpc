@@ -20,3 +20,9 @@ jpa:
     entity-scan:
       packages:
         - 'br.com.fmchagas.key_manager_grpc'
+
+# URL clientes http
+erp:
+  itau:
+    contas:
+      url: 'http://localhost:9091/api/v1/clientes'

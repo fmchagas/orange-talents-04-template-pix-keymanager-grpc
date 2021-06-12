@@ -4,6 +4,7 @@ import br.com.fmchagas.key_manager_grpc.grpc.*
 import io.grpc.Status
 import io.grpc.stub.StreamObserver
 import java.lang.Exception
+import java.lang.IllegalStateException
 import java.lang.RuntimeException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -30,6 +31,12 @@ class NovaChavePixEndPoint(
         } catch (e: UnsupportedOperationException) {
             responseObserver?.onError(
                 Status.ALREADY_EXISTS
+                    .withDescription(e.message)
+                    .asRuntimeException()
+            )
+        } catch (e: IllegalStateException) {
+            responseObserver?.onError(
+                Status.NOT_FOUND
                     .withDescription(e.message)
                     .asRuntimeException()
             )
