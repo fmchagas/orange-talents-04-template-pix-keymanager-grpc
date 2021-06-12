@@ -2,7 +2,6 @@ package br.com.fmchagas.key_manager_grpc.chave_pix
 
 import io.micronaut.test.annotation.TransactionMode
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -26,10 +25,11 @@ internal class ChavePixRepositoryTest {
     @Test
     fun `deve retornar true quando existir chave pix`(){
         //senario
+        val conta = Conta("1010", "101011", "Teste", "73007268010")
         chavePixRepository.save(
             ChavePix(
                 UUID.fromString("5260263c-a3c1-4727-ae32-3bdb2538841b"),
-                TipoDeChave.CPF, "73007268010", TipoDeConta.CORRENTE
+                TipoDeChave.CPF, "73007268010", TipoDeConta.CORRENTE, conta
             )
         )
 

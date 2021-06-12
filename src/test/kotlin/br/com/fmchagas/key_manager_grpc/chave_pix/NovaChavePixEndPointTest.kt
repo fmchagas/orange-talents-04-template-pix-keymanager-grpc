@@ -62,10 +62,11 @@ internal class NovaChavePixEndPointTest(
 
     @Test
     fun `nao deve registrar chave pix quando existente`() {
+        val conta = Conta("1010", "101011", "Teste", "73007268010")
         val existente = repository.save(
             ChavePix(
                 UUID.fromString("5260263c-a3c1-4727-ae32-3bdb2538841b"),
-                TipoDeChave.CPF, "73007268010", TipoDeConta.POUPANCA,
+                TipoDeChave.CPF, "73007268010", TipoDeConta.POUPANCA, conta,
             )
         )
 
