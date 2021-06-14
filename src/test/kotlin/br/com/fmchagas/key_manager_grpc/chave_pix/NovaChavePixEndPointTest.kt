@@ -11,6 +11,7 @@ import io.micronaut.context.annotation.Factory
 import io.micronaut.grpc.annotation.GrpcChannel
 import io.micronaut.grpc.server.GrpcServerChannel
 import io.micronaut.http.HttpResponse
+import io.micronaut.http.HttpStatus
 import io.micronaut.test.annotation.MockBean
 import javax.inject.Singleton
 
@@ -31,8 +32,8 @@ internal class NovaChavePixEndPointTest(
     @Inject
     private lateinit var clientErpItau: InformacaoDasContasDoItauERPClient
 
-    /*@MockBean(InformacaoDasContasDoItauERPClient::class)
-    internal fun mockItauClient() = mock<InformacaoDasContasDoItauERPClient>()*/
+    @MockBean(InformacaoDasContasDoItauERPClient::class)
+    internal fun mockItauClient() = mock<InformacaoDasContasDoItauERPClient>()
 
     @BeforeEach
     internal fun setup() {
@@ -45,7 +46,7 @@ internal class NovaChavePixEndPointTest(
         whenever(
             clientErpItau.buscaViaHttp(
                 "5260263c-a3c1-4727-ae32-3bdb2538841b",
-                "POUPANCA"
+                "CONTA_POUPANCA"
             )
         ).thenReturn(HttpResponse.ok(informacaoDaContaResponseFake()))
 
@@ -84,6 +85,7 @@ internal class NovaChavePixEndPointTest(
     @Test
     fun `nao deve registrar chave pix quando existente`() {
         val conta = Conta("1010", "101011", "Teste", "73007268010")
+
         val existente = repository.save(
             ChavePix(
                 UUID.fromString("5260263c-a3c1-4727-ae32-3bdb2538841b"),
@@ -110,6 +112,13 @@ internal class NovaChavePixEndPointTest(
 
     @Test
     fun `nao deve registrar chave pix quando conta do cliente nao for encontrada`() {
+       whenever(
+            clientErpItau.buscaViaHttp(
+                "ea691b01-4567-498b-83b7-1552df6cb1f4",
+                "CONTA_POUPANCA"
+            )
+        ).thenReturn(HttpResponse.notFound())
+
         val error = assertThrows<StatusRuntimeException> {
             clientGrpc.registrar(
                 NovaChavePixRequest.newBuilder()
