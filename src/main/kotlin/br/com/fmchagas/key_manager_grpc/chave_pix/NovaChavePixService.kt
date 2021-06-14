@@ -21,7 +21,7 @@ open class NovaChavePixService(
 
         val response = clientItauERP.buscaViaHttp(novaChavePix.clienteId!!, "CONTA_"+novaChavePix.tipoConta!!.name)
 
-        val conta: Conta = response.body()?.toModel() ?: throw IllegalStateException("Conta do cliente não encontrado")
+        val conta: Conta = response.body()?.toModel() ?: throw IllegalStateException("Conta do cliente não encontrada")
 
         val chave = novaChavePix.toModel(conta)
         repository.save(chave)

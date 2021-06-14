@@ -11,7 +11,7 @@ import javax.inject.Singleton
 
 @Singleton
 class NovaChavePixEndPoint(
-    @Inject val novaChavePixService: NovaChavePixService
+    @Inject private val novaChavePixService: NovaChavePixService
 ) : NovaChavePixServiceGrpc.NovaChavePixServiceImplBase() {
 
     override fun registrar(
