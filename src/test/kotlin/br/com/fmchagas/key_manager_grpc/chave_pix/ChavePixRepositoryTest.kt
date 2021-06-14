@@ -15,35 +15,68 @@ import javax.inject.Inject
 )
 internal class ChavePixRepositoryTest {
     @Inject
-    lateinit var chavePixRepository: ChavePixRepository
+    lateinit var repository: ChavePixRepository
 
     @BeforeEach
     internal fun setup() {
-        chavePixRepository.deleteAll()
+        repository.deleteAll()
     }
 
     @Test
-    fun `deve retornar true quando existir chave pix`(){
+    fun `deve retornar true quando existir chave pix`() {
         //senario
-        val conta = Conta("1010", "101011", "Teste", "73007268010")
-        chavePixRepository.save(
-            ChavePix(
-                UUID.fromString("5260263c-a3c1-4727-ae32-3bdb2538841b"),
-                TipoDeChave.CPF, "73007268010", TipoDeConta.CORRENTE, conta
-            )
-        )
+        repository.save(criaChavePixvalida())
 
         // ação
-        val existeChave = chavePixRepository.existsByChavePix("73007268010")
+        val existeChave = repository.existsByChavePix(criaChavePixvalida().chavePix)
 
         assertTrue(existeChave)
     }
 
     @Test
-    fun `deve retornar false quando nao existir chave pix`(){
+    fun `deve retornar false quando nao existir chave pix`() {
         // ação
-        val naoExisteChave = chavePixRepository.existsByChavePix("73007268010")
+        val naoExisteChave = repository.existsByChavePix("73007268010")
 
         assertFalse(naoExisteChave)
     }
+
+    @Test
+    fun `deve retornar a chave pix existente quando buscar pelo pixId e clienteId`() {
+        //senario
+        val chavePixSalva = repository.save(criaChavePixvalida())
+
+        // ação
+        val chavePix = repository.findByPixIdAndClienteId(
+            chavePixSalva.pixId, criaChavePixvalida().clienteId
+        )
+
+        with(chavePix){
+            assertNotNull(chavePix)
+            assertEquals(criaChavePixvalida().chavePix, this?.chavePix)
+            assertEquals(criaChavePixvalida().conta.agencia, this?.conta?.agencia)
+        }
+    }
+
+    @Test
+    fun `deve retornar null quando chave pix nao existir`() {
+
+        // ação
+        val chavePix = repository.findByPixIdAndClienteId(
+            UUID.fromString("5260263c-a3c1-4727-ae32-3bdb2538841b"),
+            UUID.fromString("5260263c-a3c1-4727-ae32-3bdb2538841b")
+        )
+
+        with(chavePix){
+            assertNull(chavePix)
+        }
+    }
+
+    fun criaChavePixvalida() = ChavePix(
+        clienteId = UUID.fromString("5260263c-a3c1-4727-ae32-3bdb2538841b"),
+        tipoChave = TipoDeChave.CPF,
+        chavePix = "73007268010",
+        tipoConta = TipoDeConta.CORRENTE,
+        Conta(agencia = "1010", numero = "101011", titularNome = "Teste", titularCpf = "73007268010")
+    )
 }
