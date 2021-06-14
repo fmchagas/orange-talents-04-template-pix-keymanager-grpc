@@ -34,3 +34,16 @@ enum TipoConta{
   POUPANCA = 1;
   CORRENTE = 2;
 }
+
+/* Remover */
+service RemoveChavePixService{
+  rpc remover(RemoveChavePixRequestGrpc) returns (RemoveChavePixResponseGrpc){}
+}
+
+message RemoveChavePixRequestGrpc{
+  string clienteId = 1;
+  string pixId = 2;
+}
+message RemoveChavePixResponseGrpc{
+  string mensagem = 1;
+}
