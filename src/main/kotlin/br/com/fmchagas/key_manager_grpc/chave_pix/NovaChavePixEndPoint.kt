@@ -1,5 +1,6 @@
 package br.com.fmchagas.key_manager_grpc.chave_pix
 
+import br.com.fmchagas.key_manager_grpc.compartilhado.grpc.ErrorHandler
 import br.com.fmchagas.key_manager_grpc.grpc.*
 import io.grpc.Status
 import io.grpc.stub.StreamObserver
@@ -9,6 +10,7 @@ import java.lang.RuntimeException
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@ErrorHandler
 @Singleton
 class NovaChavePixEndPoint(
     @Inject private val novaChavePixService: NovaChavePixService
@@ -20,34 +22,13 @@ class NovaChavePixEndPoint(
     ) {
 
         val novaChavePix = request?.toModelRequest()
+        val chavePixSalva = novaChavePixService.registrar(novaChavePix!!)
 
-        try {
-            val chavePixSalva = novaChavePixService.registrar(novaChavePix!!)
-            val response = NovaChavePixResponse.newBuilder()
-                .setPixId(chavePixSalva.pixId.toString())
-                .build()
+        val response = NovaChavePixResponse.newBuilder()
+            .setPixId(chavePixSalva.pixId.toString())
+            .build()
 
-            responseObserver?.onNext(response)
-        } catch (e: UnsupportedOperationException) {
-            responseObserver?.onError(
-                Status.ALREADY_EXISTS
-                    .withDescription(e.message)
-                    .asRuntimeException()
-            )
-        } catch (e: IllegalStateException) {
-            responseObserver?.onError(
-                Status.NOT_FOUND
-                    .withDescription(e.message)
-                    .asRuntimeException()
-            )
-        } catch (e: RuntimeException) {
-            responseObserver?.onError(
-                Status.INVALID_ARGUMENT
-                    .withDescription(e.message)
-                    .asRuntimeException()
-            )
-        }
-
+        responseObserver?.onNext(response)
         responseObserver?.onCompleted()
     }
 }
