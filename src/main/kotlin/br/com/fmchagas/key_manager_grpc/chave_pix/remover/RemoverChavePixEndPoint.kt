@@ -2,6 +2,7 @@ package br.com.fmchagas.key_manager_grpc.chave_pix.remover
 
 
 import br.com.fmchagas.key_manager_grpc.compartilhado.exception.NotFoundException
+import br.com.fmchagas.key_manager_grpc.compartilhado.grpc.ErrorHandler
 import br.com.fmchagas.key_manager_grpc.grpc.RemoveChavePixRequestGrpc
 import br.com.fmchagas.key_manager_grpc.grpc.RemoveChavePixResponseGrpc
 import br.com.fmchagas.key_manager_grpc.grpc.RemoveChavePixServiceGrpc
@@ -11,6 +12,7 @@ import java.lang.RuntimeException
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@ErrorHandler//1
 @Singleton
 class RemoverChavePixEndPoint(
     @Inject private val service: RemoverChavePixService
@@ -21,28 +23,13 @@ class RemoverChavePixEndPoint(
         responseObserver: StreamObserver<RemoveChavePixResponseGrpc>?
     ) {
 
-        try{
-            service.remover(request.toRemoveChavePixRequest())
+        service.remover(request.toRemoveChavePixRequest())
 
-            val response = RemoveChavePixResponseGrpc.newBuilder()
-                .setMensagem("Removido com sucesso")
-                .build()
+        val response = RemoveChavePixResponseGrpc.newBuilder()
+            .setMensagem("Removido com sucesso")
+            .build()
 
-            responseObserver?.onNext(response)
-        }catch (e: NotFoundException) {
-            responseObserver?.onError(
-                Status.NOT_FOUND
-                    .withDescription(e.message)
-                    .asRuntimeException()
-            )
-        }catch (e: RuntimeException) {
-            responseObserver?.onError(
-                Status.INTERNAL
-                    .withDescription(e.message)
-                    .asRuntimeException()
-            )
-        }
-
+        responseObserver?.onNext(response)
         responseObserver?.onCompleted()
     }
 }
