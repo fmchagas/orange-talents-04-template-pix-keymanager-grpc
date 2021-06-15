@@ -1,12 +1,10 @@
-package br.com.fmchagas.key_manager_grpc.chave_pix
+package br.com.fmchagas.key_manager_grpc.chave_pix.registra
 
+import br.com.fmchagas.key_manager_grpc.chave_pix.TipoDeChave
+import br.com.fmchagas.key_manager_grpc.chave_pix.TipoDeConta
 import br.com.fmchagas.key_manager_grpc.compartilhado.grpc.ErrorHandler
 import br.com.fmchagas.key_manager_grpc.grpc.*
-import io.grpc.Status
 import io.grpc.stub.StreamObserver
-import java.lang.Exception
-import java.lang.IllegalStateException
-import java.lang.RuntimeException
 import javax.inject.Inject
 import javax.inject.Singleton
 

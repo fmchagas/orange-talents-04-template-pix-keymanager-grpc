@@ -1,5 +1,8 @@
-package br.com.fmchagas.key_manager_grpc.chave_pix
+package br.com.fmchagas.key_manager_grpc.chave_pix.registra
 
+import br.com.fmchagas.key_manager_grpc.chave_pix.Conta
+import br.com.fmchagas.key_manager_grpc.chave_pix.TipoDeChave
+import br.com.fmchagas.key_manager_grpc.chave_pix.TipoDeConta
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow

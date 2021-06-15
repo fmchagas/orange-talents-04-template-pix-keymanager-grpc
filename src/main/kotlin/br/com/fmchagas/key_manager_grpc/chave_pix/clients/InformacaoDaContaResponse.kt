@@ -1,4 +1,6 @@
-package br.com.fmchagas.key_manager_grpc.chave_pix
+package br.com.fmchagas.key_manager_grpc.chave_pix.clients
+
+import br.com.fmchagas.key_manager_grpc.chave_pix.Conta
 
 data class InformacaoDaContaResponse(
     val tipo: String,

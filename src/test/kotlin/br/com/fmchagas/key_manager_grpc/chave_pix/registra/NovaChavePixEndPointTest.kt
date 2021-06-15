@@ -1,5 +1,10 @@
-package br.com.fmchagas.key_manager_grpc.chave_pix
+package br.com.fmchagas.key_manager_grpc.chave_pix.registra
 
+import br.com.fmchagas.key_manager_grpc.chave_pix.*
+import br.com.fmchagas.key_manager_grpc.chave_pix.clients.InformacaoDaContaResponse
+import br.com.fmchagas.key_manager_grpc.chave_pix.clients.InformacaoDasContasDoItauERPClient
+import br.com.fmchagas.key_manager_grpc.chave_pix.clients.InstituicaoResponse
+import br.com.fmchagas.key_manager_grpc.chave_pix.clients.TitularResponse
 import br.com.fmchagas.key_manager_grpc.grpc.NovaChavePixRequest
 import br.com.fmchagas.key_manager_grpc.grpc.NovaChavePixServiceGrpc
 import br.com.fmchagas.key_manager_grpc.grpc.TipoChave
@@ -11,7 +16,6 @@ import io.micronaut.context.annotation.Factory
 import io.micronaut.grpc.annotation.GrpcChannel
 import io.micronaut.grpc.server.GrpcServerChannel
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.HttpStatus
 import io.micronaut.test.annotation.MockBean
 import javax.inject.Singleton
 

@@ -1,4 +1,4 @@
-package br.com.fmchagas.key_manager_grpc.chave_pix
+package br.com.fmchagas.key_manager_grpc.compartilhado.validator
 
 import io.micronaut.core.annotation.AnnotationValue
 import io.micronaut.validation.validator.constraints.ConstraintValidator
@@ -14,9 +14,6 @@ import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.annotation.AnnotationTarget.*
 
 
-/*@Pattern(regexp = "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-    flags = [Pattern.Flag.CASE_INSENSITIVE]
-)*/
 @ReportAsSingleViolation
 @Constraint(validatedBy = [])
 @Retention(RUNTIME)

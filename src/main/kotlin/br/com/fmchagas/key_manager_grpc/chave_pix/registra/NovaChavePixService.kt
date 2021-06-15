@@ -1,8 +1,9 @@
-package br.com.fmchagas.key_manager_grpc.chave_pix
+package br.com.fmchagas.key_manager_grpc.chave_pix.registra
 
+import br.com.fmchagas.key_manager_grpc.chave_pix.*
+import br.com.fmchagas.key_manager_grpc.chave_pix.clients.InformacaoDasContasDoItauERPClient
 import br.com.fmchagas.key_manager_grpc.compartilhado.exception.ChavePixExistenteException
 import br.com.fmchagas.key_manager_grpc.compartilhado.exception.NotFoundException
-import java.lang.IllegalStateException
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.transaction.Transactional

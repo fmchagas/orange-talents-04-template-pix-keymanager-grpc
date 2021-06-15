@@ -1,5 +1,6 @@
 package br.com.fmchagas.key_manager_grpc.chave_pix
 
+import br.com.fmchagas.key_manager_grpc.chave_pix.registra.NovaChavePix
 import io.micronaut.core.annotation.AnnotationValue
 import io.micronaut.validation.validator.constraints.ConstraintValidator
 import io.micronaut.validation.validator.constraints.ConstraintValidatorContext

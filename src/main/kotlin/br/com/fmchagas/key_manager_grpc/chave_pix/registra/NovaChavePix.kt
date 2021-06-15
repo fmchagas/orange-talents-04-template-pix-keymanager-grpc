@@ -1,5 +1,7 @@
-package br.com.fmchagas.key_manager_grpc.chave_pix
+package br.com.fmchagas.key_manager_grpc.chave_pix.registra
 
+import br.com.fmchagas.key_manager_grpc.chave_pix.*
+import br.com.fmchagas.key_manager_grpc.compartilhado.validator.ValidUUID
 import io.micronaut.core.annotation.Introspected
 import java.util.*
 import javax.validation.constraints.NotBlank
