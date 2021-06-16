@@ -2,20 +2,20 @@ package br.com.fmchagas.key_manager_grpc.chave_pix.clients
 
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
-import io.micronaut.http.annotation.Body
-import io.micronaut.http.annotation.Consumes
-import io.micronaut.http.annotation.Post
-import io.micronaut.http.annotation.Produces
+import io.micronaut.http.annotation.*
 import io.micronaut.http.client.annotation.Client
 import java.time.LocalDateTime
 
 @Client("\${bcb.url}")
+@Consumes(MediaType.APPLICATION_XML)
+@Produces(MediaType.APPLICATION_XML)
 interface BcbClient {
 
     @Post("/api/v1/pix/keys")
-    @Consumes(MediaType.APPLICATION_XML)
-    @Produces(MediaType.APPLICATION_XML)
     fun registrarViaHttp(@Body request: CreatePixKeyRequest): HttpResponse<CreatePixKeyResponse?>
+
+    @Delete("/api/v1/pix/keys/{key}")
+    fun removerViaHttp(@PathVariable key: String, @Body request: DeletePixKeyRequest) : HttpResponse<DeletePixKeyResponse>
 }
 
 data class CreatePixKeyRequest(
@@ -63,3 +63,15 @@ data class Owner(
         NATURAL_PERSON
     }
 }
+
+/*Remove*/
+data class DeletePixKeyRequest(
+    val key: String,
+    val participant: String
+)
+
+data class DeletePixKeyResponse(
+    val key: String,
+    val participant: String,
+    val deletedAt: LocalDateTime
+)
