@@ -95,7 +95,7 @@ internal class NovaChavePixEndPointTest(
 
     @Test
     fun `nao deve registrar chave pix quando existente`() {
-        val conta = Conta("1010", "101011", "Teste", "73007268010")
+        val conta = Conta("1010", "101011", "Teste", "73007268010", "Itau S.A", "1010")
 
         val existente = repository.save(
             ChavePix(

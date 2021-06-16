@@ -1,6 +1,10 @@
 package br.com.fmchagas.key_manager_grpc.chave_pix.remover
 
 import br.com.fmchagas.key_manager_grpc.chave_pix.*
+import br.com.fmchagas.key_manager_grpc.chave_pix.clients.BcbClient
+import br.com.fmchagas.key_manager_grpc.chave_pix.clients.DeletePixKeyRequest
+import br.com.fmchagas.key_manager_grpc.chave_pix.registra.createPixKeyRequest
+import br.com.fmchagas.key_manager_grpc.chave_pix.registra.createPixKeyResponseFake
 import br.com.fmchagas.key_manager_grpc.grpc.*
 import io.grpc.ManagedChannel
 import io.grpc.Status
@@ -8,12 +12,17 @@ import io.grpc.StatusRuntimeException
 import io.micronaut.context.annotation.Factory
 import io.micronaut.grpc.annotation.GrpcChannel
 import io.micronaut.grpc.server.GrpcServerChannel
+import io.micronaut.http.HttpResponse
+import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import java.util.UUID
+import javax.inject.Inject
 
 import javax.inject.Singleton
 
@@ -23,6 +32,11 @@ internal class RemoverChavePixEndPointTest(
     val clientGrpc: RemoveChavePixServiceGrpc.RemoveChavePixServiceBlockingStub
 ) {
 
+    @Inject
+    private lateinit var clientBcb: BcbClient
+
+    @MockBean(BcbClient::class)
+    internal fun mockBcbClient() = mock<BcbClient>()
 
     @BeforeEach
     internal fun setup() {
@@ -33,6 +47,16 @@ internal class RemoverChavePixEndPointTest(
     fun `deve remover chave pix quando existente`() {
         // cenário
         val existente = repository.save(criaChavePixvalida())
+
+        whenever(
+            clientBcb.removerViaHttp(
+                existente.chavePix,
+                DeletePixKeyRequest(
+                    key = existente.chavePix,
+                    participant = existente.conta.instituicaoIsb
+                )
+            )
+        ).thenReturn(HttpResponse.ok())
 
         // ação
         val response = clientGrpc.remover(
@@ -77,7 +101,14 @@ internal class RemoverChavePixEndPointTest(
                 tipoChave = TipoDeChave.EMAIL,
                 chavePix = "cliente@email.com.br",
                 tipoConta = TipoDeConta.CORRENTE,
-                Conta(agencia = "3030", numero = "555530", titularNome = "Cliente", titularCpf = "73007268011")
+                Conta(
+                    agencia = "1010",
+                    numero = "101011",
+                    titularNome = "Teste",
+                    titularCpf = "73007268010",
+                    instituicaoNome = "Banco X",
+                    instituicaoIsb = "1023"
+                )
             )
         )
 
@@ -98,6 +129,37 @@ internal class RemoverChavePixEndPointTest(
         }
     }
 
+    @Test
+    fun `nao deve remover chave pix existente quando dar erro no servico do banco central`() {
+        // cenário
+        val existente = repository.save(criaChavePixvalida())
+
+        whenever(
+            clientBcb.removerViaHttp(
+                existente.chavePix,
+                DeletePixKeyRequest(
+                    key = existente.chavePix,
+                    participant = existente.conta.instituicaoIsb
+                )
+            )
+        ).thenReturn(HttpResponse.notFound())
+
+        // ação
+        val error = assertThrows<StatusRuntimeException> {
+            clientGrpc.remover(
+            RemoveChavePixRequestGrpc.newBuilder()
+                .setClienteId(existente.clienteId.toString())
+                .setPixId(existente.pixId.toString())
+                .build()
+        )}
+
+        // validação
+        with(error) {
+            assertEquals(Status.FAILED_PRECONDITION.code, status.code)
+            assertEquals("Erro quando tentamos remover chave pix no banco central", status.description)
+        }
+    }
+
 
     @Factory
     class Clientes {
@@ -112,7 +174,14 @@ internal class RemoverChavePixEndPointTest(
         tipoChave = TipoDeChave.CPF,
         chavePix = "73007268010",
         tipoConta = TipoDeConta.CORRENTE,
-        Conta(agencia = "1010", numero = "101011", titularNome = "Teste", titularCpf = "73007268010")
+        Conta(
+            agencia = "1010",
+            numero = "101011",
+            titularNome = "Teste",
+            titularCpf = "73007268010",
+            instituicaoNome = "Itau S.A",
+            instituicaoIsb = "1010"
+        )
     )
 
 }

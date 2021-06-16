@@ -77,6 +77,6 @@ internal class ChavePixRepositoryTest {
         tipoChave = TipoDeChave.CPF,
         chavePix = "73007268010",
         tipoConta = TipoDeConta.CORRENTE,
-        Conta(agencia = "1010", numero = "101011", titularNome = "Teste", titularCpf = "73007268010")
+        Conta(agencia = "1010", numero = "101011", titularNome = "Teste", titularCpf = "73007268010", instituicaoNome = "Banco X" , instituicaoIsb = "1023")
     )
 }
