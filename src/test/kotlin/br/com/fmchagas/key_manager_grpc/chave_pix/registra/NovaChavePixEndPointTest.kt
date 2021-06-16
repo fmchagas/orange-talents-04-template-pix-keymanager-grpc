@@ -1,10 +1,7 @@
 package br.com.fmchagas.key_manager_grpc.chave_pix.registra
 
 import br.com.fmchagas.key_manager_grpc.chave_pix.*
-import br.com.fmchagas.key_manager_grpc.chave_pix.clients.InformacaoDaContaResponse
-import br.com.fmchagas.key_manager_grpc.chave_pix.clients.InformacaoDasContasDoItauERPClient
-import br.com.fmchagas.key_manager_grpc.chave_pix.clients.InstituicaoResponse
-import br.com.fmchagas.key_manager_grpc.chave_pix.clients.TitularResponse
+import br.com.fmchagas.key_manager_grpc.chave_pix.clients.*
 import br.com.fmchagas.key_manager_grpc.grpc.NovaChavePixRequest
 import br.com.fmchagas.key_manager_grpc.grpc.NovaChavePixServiceGrpc
 import br.com.fmchagas.key_manager_grpc.grpc.TipoChave
@@ -27,6 +24,7 @@ import org.junit.jupiter.api.Test
 import java.util.*
 import javax.inject.Inject
 import org.mockito.kotlin.*
+import java.time.LocalDateTime
 
 @MicronautTest(transactional = false)
 internal class NovaChavePixEndPointTest(
@@ -36,8 +34,14 @@ internal class NovaChavePixEndPointTest(
     @Inject
     private lateinit var clientErpItau: InformacaoDasContasDoItauERPClient
 
+    @Inject
+    private lateinit var clientBcb: BcbClient
+
     @MockBean(InformacaoDasContasDoItauERPClient::class)
     internal fun mockItauClient() = mock<InformacaoDasContasDoItauERPClient>()
+
+    @MockBean(BcbClient::class)
+    internal fun mockBcbClient() = mock<BcbClient>()
 
     @BeforeEach
     internal fun setup() {
@@ -53,6 +57,9 @@ internal class NovaChavePixEndPointTest(
                 "CONTA_POUPANCA"
             )
         ).thenReturn(HttpResponse.ok(informacaoDaContaResponseFake()))
+
+        whenever(clientBcb.registrarViaHttp(createPixKeyRequest()))
+            .thenReturn(HttpResponse.created(createPixKeyResponseFake()))
 
         val response = clientGrpc.registrar(
             NovaChavePixRequest.newBuilder()
@@ -116,7 +123,7 @@ internal class NovaChavePixEndPointTest(
 
     @Test
     fun `nao deve registrar chave pix quando conta do cliente nao for encontrada`() {
-       whenever(
+        whenever(
             clientErpItau.buscaViaHttp(
                 "ea691b01-4567-498b-83b7-1552df6cb1f4",
                 "CONTA_POUPANCA"
@@ -140,8 +147,39 @@ internal class NovaChavePixEndPointTest(
         }
     }
 
+    @Test
+    fun `nao deve registrar chave pix quando conta do cliente nao for registrada no banco central`() {
+
+        whenever(
+            clientErpItau.buscaViaHttp(
+                "5260263c-a3c1-4727-ae32-3bdb2538841b",
+                "CONTA_POUPANCA"
+            )
+        ).thenReturn(HttpResponse.ok(informacaoDaContaResponseFake()))
+
+        whenever(clientBcb.registrarViaHttp(createPixKeyRequest()))
+            .thenReturn(HttpResponse.unprocessableEntity())
+
+        val error = assertThrows<StatusRuntimeException> {
+            clientGrpc.registrar(
+                NovaChavePixRequest.newBuilder()
+                    .setClienteId("5260263c-a3c1-4727-ae32-3bdb2538841b")
+                    .setTipoChave(TipoChave.CPF)
+                    .setChaveDoPix("73007268010")
+                    .setTipoConta(TipoConta.POUPANCA)
+                    .build()
+            )
+        }
+
+        with(error) {
+            assertEquals(Status.FAILED_PRECONDITION.code, status.code)
+            assertEquals("não foi possivel criar chave pix no banco central", status.description)
+
+        }
+    }
+
     fun informacaoDaContaResponseFake() = InformacaoDaContaResponse(
-        tipo = "CONTA_POUPANCA",
+        tipo = "CONTA_CORRENTE",
         instituicao = InstituicaoResponse(nome = "Banco X", ispb = "1023"),
         agencia = "1010",
         numero = "20202",
@@ -156,3 +194,36 @@ internal class NovaChavePixEndPointTest(
         }
     }
 }
+
+fun createPixKeyResponseFake() = CreatePixKeyResponse(
+    keyType = KeyType.CPF,
+    key = "73007268010",
+    bankAccount = BankAccount(
+        participant = "1023",
+        branch = "0001",
+        accountNumber = "20202",
+        accountType = BankAccount.AccountType.SVGS
+    ),
+    owner = Owner(
+        type = Owner.OwnerType.NATURAL_PERSON,
+        name = "Dunha",
+        taxIdNumber = "73007268010"
+    ),
+    createdAt = LocalDateTime.now()
+)
+
+fun createPixKeyRequest() = CreatePixKeyRequest(
+    key = "73007268010",
+    keyType = KeyType.CPF,
+    bankAccount = BankAccount(
+        participant = "1023",
+        branch = "0001",
+        accountNumber = "20202",
+        accountType = BankAccount.AccountType.SVGS
+    ),
+    owner = Owner(
+        type = Owner.OwnerType.NATURAL_PERSON,
+        name = "Dunha",
+        taxIdNumber = "73007268010"
+    )
+)

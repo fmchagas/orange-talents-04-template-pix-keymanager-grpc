@@ -20,7 +20,7 @@ class ChavePix(
 
     @field:NotEmpty
     @Column(nullable = false, length = 77, unique = true)
-    val chavePix: String,
+    var chavePix: String,
 
     @field:NotNull
     @Column(nullable = false, length = 20)
@@ -31,6 +31,9 @@ class ChavePix(
     @Embedded
     val conta: Conta
 ) {
+    fun atualizarChave(chavePix: String) {
+        this.chavePix = chavePix
+    }
 
     @Id @GeneratedValue(strategy = IDENTITY)
     var id : Long? = null
