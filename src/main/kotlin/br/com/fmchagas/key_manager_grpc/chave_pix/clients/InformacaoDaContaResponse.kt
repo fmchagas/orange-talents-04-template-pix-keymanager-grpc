@@ -10,7 +10,7 @@ data class InformacaoDaContaResponse(
     val titular: TitularResponse
 ) {
 
-    fun toModel() = Conta(agencia, numero, titular.nome, titular.cpf)
+    fun toModel() = Conta(agencia, numero, titular.nome, titular.cpf, instituicao.nome, instituicao.ispb)
 }
 
 data class InstituicaoResponse(val nome: String, val ispb: String)

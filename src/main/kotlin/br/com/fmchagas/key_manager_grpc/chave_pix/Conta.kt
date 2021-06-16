@@ -21,5 +21,13 @@ class Conta(
 
     @field:NotEmpty
     @Column(nullable = false, length = 11, name = "conta_titular_cpf")
-    val titularCpf: String
+    val titularCpf: String,
+
+    @field:NotEmpty
+    @Column(nullable = false, length = 128, name = "conta_instituicao_nome")
+    val instituicaoNome: String,
+
+    @field:NotEmpty
+    @Column(nullable = false, length = 20, name = "conta_instituicao_isb")
+    val instituicaoIsb: String
 )
