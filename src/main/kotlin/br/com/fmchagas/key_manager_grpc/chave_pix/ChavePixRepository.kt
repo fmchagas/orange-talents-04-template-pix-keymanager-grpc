@@ -8,4 +8,5 @@ import java.util.*
 interface ChavePixRepository : CrudRepository<ChavePix, Long> {
     fun existsByChavePix(chaveDoPix: String): Boolean
     fun findByPixIdAndClienteId(pixId: UUID, clienteId: UUID): ChavePix?
+    fun findByChavePix(chavePix: String?): ChavePix?
 }

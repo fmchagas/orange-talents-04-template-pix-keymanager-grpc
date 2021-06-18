@@ -5,6 +5,7 @@ option java_package = "br.com.fmchagas.key_manager_grpc.grpc";
 //option java_outer_classname = "KeyManagerPix";
 
 package br.com.fmchagas.key_manager_grpc.grpc;
+import "google/protobuf/timestamp.proto";
 
 service NovaChavePixService{
   rpc registrar(NovaChavePixRequest) returns (NovaChavePixResponse){}
@@ -46,4 +47,43 @@ message RemoveChavePixRequestGrpc{
 }
 message RemoveChavePixResponseGrpc{
   string mensagem = 1;
+}
+
+/* Consultar */
+service ConsultarChavePixService{
+  rpc consulta(ConsultarChavePixRequestGrpc) returns (ConsultarChavePixResponseGrpc){}
+}
+
+message ConsultarChavePixRequestGrpc{
+  oneof filtro{
+    FiltroPorPixId pixId = 1;
+    string chavePix = 2;
+  }
+
+  message FiltroPorPixId{
+    string clienteId = 1;
+    string pixId = 2;
+  }
+}
+
+message ConsultarChavePixResponseGrpc{
+  string clienteId = 1;
+  string pixId = 2;
+  ChavePixGrpc chave = 3;
+
+  message ChavePixGrpc{
+    TipoChave tipo = 1;
+    string chavePix = 2;
+    ContaGrpc conta = 3;
+    google.protobuf.Timestamp criadoEm = 4;
+
+    message ContaGrpc{
+      TipoConta tipo = 1;
+      string instituicao = 2;
+      string titular = 3;
+      string cpf = 4;
+      string agencia = 5;
+      string conta = 6;
+    }
+  }
 }
