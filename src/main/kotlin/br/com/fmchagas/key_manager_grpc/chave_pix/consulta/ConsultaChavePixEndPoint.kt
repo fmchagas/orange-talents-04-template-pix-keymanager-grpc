@@ -1,7 +1,5 @@
 package br.com.fmchagas.key_manager_grpc.chave_pix.consulta
 
-import br.com.fmchagas.key_manager_grpc.chave_pix.ChavePixRepository
-import br.com.fmchagas.key_manager_grpc.chave_pix.clients.BcbClient
 import br.com.fmchagas.key_manager_grpc.compartilhado.grpc.ErrorHandler
 import br.com.fmchagas.key_manager_grpc.grpc.ConsultarChavePixRequestGrpc
 import br.com.fmchagas.key_manager_grpc.grpc.ConsultarChavePixResponseGrpc
@@ -9,7 +7,6 @@ import br.com.fmchagas.key_manager_grpc.grpc.ConsultarChavePixServiceGrpc
 import io.grpc.stub.StreamObserver
 import javax.inject.Inject
 import javax.inject.Singleton
-import javax.validation.Validator
 import kotlin.IllegalStateException
 
 @ErrorHandler
