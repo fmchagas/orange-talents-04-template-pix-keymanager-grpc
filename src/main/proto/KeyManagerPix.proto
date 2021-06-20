@@ -87,3 +87,25 @@ message ConsultarChavePixResponseGrpc{
     }
   }
 }
+
+/* Listar */
+service ListarChavePixService{
+  rpc lista(ListaChavePixRequestGrpc) returns (ListaChavePixResponseGrpc){}
+}
+
+message ListaChavePixRequestGrpc{
+  string clientId = 1;
+}
+
+message ListaChavePixResponseGrpc{
+  string clientId = 1;
+  repeated ListaChavePixGrpc chaves = 2;
+
+  message ListaChavePixGrpc {
+    string pixId = 1;
+    TipoChave tipoChave = 2;
+    string chavePix = 3;
+    TipoConta tipoConta = 4;
+    google.protobuf.Timestamp criadoEm = 5;
+  }
+}
