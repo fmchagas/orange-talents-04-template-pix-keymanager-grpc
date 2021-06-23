@@ -10,3 +10,10 @@ datasources:
 jpa.default.properties.hibernate.hbm2ddl.auto: create
 jpa.default.properties.hibernate.show_sql: false
 #jpa.default.properties.hibernate.format_sql: true
+
+# gRPC Server
+grpc:
+  server:
+    port: ${SERVER_PORT:50051}
+    keep-alive-time: 15m
+    max-inbound-message-size: 1024

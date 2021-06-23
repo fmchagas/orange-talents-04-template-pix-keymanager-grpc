@@ -6,6 +6,7 @@ import br.com.fmchagas.key_manager_grpc.grpc.NovaChavePixRequest
 import br.com.fmchagas.key_manager_grpc.grpc.NovaChavePixServiceGrpc
 import br.com.fmchagas.key_manager_grpc.grpc.TipoChave
 import br.com.fmchagas.key_manager_grpc.grpc.TipoConta
+import br.com.fmchagas.key_manager_grpc.util.ChavePixUtil
 import io.grpc.ManagedChannel
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
@@ -15,16 +16,16 @@ import io.micronaut.grpc.server.GrpcServerChannel
 import io.micronaut.http.HttpResponse
 import io.micronaut.test.annotation.MockBean
 import javax.inject.Singleton
-
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito
 import java.util.*
 import javax.inject.Inject
 import org.mockito.kotlin.*
-import java.time.LocalDateTime
 
 @MicronautTest(transactional = false)
 internal class NovaChavePixEndPointTest(
@@ -50,28 +51,26 @@ internal class NovaChavePixEndPointTest(
 
     @Test
     fun `deve registrar chave pix`() {
+        // cenário
+        Mockito.`when`(clientErpItau.buscaViaHttp(clienteId = ChavePixUtil.CLIENTE_ID, tipo = ChavePixUtil.TIPO_CONTA))
+            .thenReturn(HttpResponse.ok(ChavePixUtil.informacaoDaContaResponse()))
 
-        whenever(
-            clientErpItau.buscaViaHttp(
-                "5260263c-a3c1-4727-ae32-3bdb2538841b",
-                "CONTA_POUPANCA"
-            )
-        ).thenReturn(HttpResponse.ok(informacaoDaContaResponseFake()))
+        Mockito.`when`(clientBcb.registrarViaHttp(ChavePixUtil.request()))
+            .thenReturn(HttpResponse.created(ChavePixUtil.createPixKeyResponse()))
 
-        whenever(clientBcb.registrarViaHttp(createPixKeyRequest()))
-            .thenReturn(HttpResponse.created(createPixKeyResponseFake()))
-
+        // ação
         val response = clientGrpc.registrar(
             NovaChavePixRequest.newBuilder()
-                .setClienteId("5260263c-a3c1-4727-ae32-3bdb2538841b")
-                .setTipoChave(TipoChave.CPF)
-                .setChaveDoPix("73007268010")
-                .setTipoConta(TipoConta.POUPANCA)
+                .setClienteId(ChavePixUtil.CLIENTE_ID)
+                .setTipoChave(TipoChave.EMAIL)
+                .setChaveDoPix(ChavePixUtil.CHAVE)
+                .setTipoConta(TipoConta.CORRENTE)
                 .build()
         )
 
+        // validação
         with(response) {
-            assertNotNull(pixId)
+            Assertions.assertNotNull(pixId)
         }
     }
 
@@ -95,7 +94,7 @@ internal class NovaChavePixEndPointTest(
 
     @Test
     fun `nao deve registrar chave pix quando existente`() {
-        val conta = Conta("1010", "101011", "Teste", "73007268010", "Itau S.A", "1010")
+        val conta = Conta("1010", "101011", "Fernando", "73007268010", "UNIBANCO ITAU", "1010")
 
         val existente = repository.save(
             ChavePix(
@@ -124,19 +123,16 @@ internal class NovaChavePixEndPointTest(
     @Test
     fun `nao deve registrar chave pix quando conta do cliente nao for encontrada`() {
         whenever(
-            clientErpItau.buscaViaHttp(
-                "ea691b01-4567-498b-83b7-1552df6cb1f4",
-                "CONTA_POUPANCA"
-            )
+            clientErpItau.buscaViaHttp(clienteId = ChavePixUtil.CLIENTE_ID, tipo = ChavePixUtil.TIPO_CONTA)
         ).thenReturn(HttpResponse.notFound())
 
         val error = assertThrows<StatusRuntimeException> {
             clientGrpc.registrar(
                 NovaChavePixRequest.newBuilder()
-                    .setClienteId("ea691b01-4567-498b-83b7-1552df6cb1f4")
-                    .setTipoChave(TipoChave.CPF)
-                    .setChaveDoPix("73007268010")
-                    .setTipoConta(TipoConta.POUPANCA)
+                    .setClienteId(ChavePixUtil.CLIENTE_ID)
+                    .setTipoChave(TipoChave.EMAIL)
+                    .setChaveDoPix(ChavePixUtil.CHAVE)
+                    .setTipoConta(TipoConta.CORRENTE)
                     .build()
             )
         }
@@ -151,22 +147,19 @@ internal class NovaChavePixEndPointTest(
     fun `nao deve registrar chave pix quando conta do cliente nao for registrada no banco central`() {
 
         whenever(
-            clientErpItau.buscaViaHttp(
-                "5260263c-a3c1-4727-ae32-3bdb2538841b",
-                "CONTA_POUPANCA"
-            )
-        ).thenReturn(HttpResponse.ok(informacaoDaContaResponseFake()))
+            clientErpItau.buscaViaHttp(clienteId = ChavePixUtil.CLIENTE_ID, tipo = ChavePixUtil.TIPO_CONTA)
+        ).thenReturn(HttpResponse.ok(ChavePixUtil.informacaoDaContaResponse()))
 
-        whenever(clientBcb.registrarViaHttp(createPixKeyRequest()))
+        whenever(clientBcb.registrarViaHttp(ChavePixUtil.request()))
             .thenReturn(HttpResponse.unprocessableEntity())
 
         val error = assertThrows<StatusRuntimeException> {
             clientGrpc.registrar(
                 NovaChavePixRequest.newBuilder()
-                    .setClienteId("5260263c-a3c1-4727-ae32-3bdb2538841b")
-                    .setTipoChave(TipoChave.CPF)
-                    .setChaveDoPix("73007268010")
-                    .setTipoConta(TipoConta.POUPANCA)
+                    .setClienteId(ChavePixUtil.CLIENTE_ID)
+                    .setTipoChave(TipoChave.EMAIL)
+                    .setChaveDoPix(ChavePixUtil.CHAVE)
+                    .setTipoConta(TipoConta.CORRENTE)
                     .build()
             )
         }
@@ -178,14 +171,6 @@ internal class NovaChavePixEndPointTest(
         }
     }
 
-    fun informacaoDaContaResponseFake() = InformacaoDaContaResponse(
-        tipo = "CONTA_CORRENTE",
-        instituicao = InstituicaoResponse(nome = "Banco X", ispb = "1023"),
-        agencia = "1010",
-        numero = "20202",
-        titular = TitularResponse(id = "5260263c-a3c1-4727-ae32-3bdb2538841b", nome = "Dunha", cpf = "73007268010")
-    )
-
     @Factory
     class Clientes {
         @Singleton
@@ -194,36 +179,3 @@ internal class NovaChavePixEndPointTest(
         }
     }
 }
-
-fun createPixKeyResponseFake() = CreatePixKeyResponse(
-    keyType = KeyType.CPF,
-    key = "73007268010",
-    bankAccount = BankAccount(
-        participant = "1023",
-        branch = "0001",
-        accountNumber = "20202",
-        accountType = BankAccount.AccountType.SVGS
-    ),
-    owner = Owner(
-        type = Owner.OwnerType.NATURAL_PERSON,
-        name = "Dunha",
-        taxIdNumber = "73007268010"
-    ),
-    createdAt = LocalDateTime.now()
-)
-
-fun createPixKeyRequest() = CreatePixKeyRequest(
-    key = "73007268010",
-    keyType = KeyType.CPF,
-    bankAccount = BankAccount(
-        participant = "1023",
-        branch = "0001",
-        accountNumber = "20202",
-        accountType = BankAccount.AccountType.SVGS
-    ),
-    owner = Owner(
-        type = Owner.OwnerType.NATURAL_PERSON,
-        name = "Dunha",
-        taxIdNumber = "73007268010"
-    )
-)

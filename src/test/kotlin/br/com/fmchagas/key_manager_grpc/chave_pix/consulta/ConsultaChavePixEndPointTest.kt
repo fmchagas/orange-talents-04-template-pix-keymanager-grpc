@@ -3,6 +3,7 @@ package br.com.fmchagas.key_manager_grpc.chave_pix.consulta
 import br.com.fmchagas.key_manager_grpc.chave_pix.*
 import br.com.fmchagas.key_manager_grpc.chave_pix.clients.*
 import br.com.fmchagas.key_manager_grpc.grpc.*
+import br.com.fmchagas.key_manager_grpc.util.ChavePixUtil
 import io.grpc.ManagedChannel
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
@@ -17,14 +18,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.ValueSource
-import org.junit.runners.Parameterized
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import java.time.LocalDateTime
 import java.util.*
-import java.util.stream.Stream
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -161,7 +159,7 @@ internal class ConsultaChavePixEndPointTest(
     @Test
     fun `deve retornar chave por chavePix quando registro nao existir localmente mas existe no banco central`() {
         // cenário
-        val bcbResponse = pixKeyDetailsResponse()
+        val bcbResponse = ChavePixUtil.pixKeyDetailsResponse()
 
         whenever(clientBcb.buscarViaHttp(key = "fernando@gmail.com"))
             .thenReturn(HttpResponse.ok(bcbResponse))
@@ -239,33 +237,5 @@ internal class ConsultaChavePixEndPointTest(
         fun blockingStub(@GrpcChannel(GrpcServerChannel.NAME) canal: ManagedChannel): ConsultarChavePixServiceGrpc.ConsultarChavePixServiceBlockingStub {
             return ConsultarChavePixServiceGrpc.newBlockingStub(canal)
         }
-    }
-
-
-    private fun pixKeyDetailsResponse(): PixKeyDetailsResponse {
-        return PixKeyDetailsResponse(
-            keyType = KeyType.EMAIL,
-            key = "fernando@gmail.com",
-            bankAccount = bankAccount(),
-            owner = owner(),
-            createdAt = LocalDateTime.now()
-        )
-    }
-
-    private fun bankAccount(): BankAccount {
-        return BankAccount(
-            participant = "90400888",
-            branch = "9871",
-            accountNumber = "987654",
-            accountType = BankAccount.AccountType.SVGS
-        )
-    }
-
-    private fun owner(): Owner {
-        return Owner(
-            type = Owner.OwnerType.NATURAL_PERSON,
-            name = "Outro usuario",
-            taxIdNumber = "12345678901"
-        )
     }
 }

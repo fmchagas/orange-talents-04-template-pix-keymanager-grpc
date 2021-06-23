@@ -30,3 +30,10 @@ erp:
 # URL client BCB
 bcb:
   url: ${BCB_URL:`http://localhost:8082`}
+
+# gRPC Server
+grpc:
+  server:
+    port: ${SERVER_PORT:50052}
+    keep-alive-time: 15m
+    max-inbound-message-size: 1024

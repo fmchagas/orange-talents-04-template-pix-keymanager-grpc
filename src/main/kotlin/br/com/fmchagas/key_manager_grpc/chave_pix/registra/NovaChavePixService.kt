@@ -6,6 +6,7 @@ import br.com.fmchagas.key_manager_grpc.compartilhado.exception.ChavePixExistent
 import br.com.fmchagas.key_manager_grpc.compartilhado.exception.NotFoundException
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.HttpResponse
+import org.slf4j.LoggerFactory
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.transaction.Transactional
@@ -18,6 +19,8 @@ open class NovaChavePixService(
     @Inject val clientItauERP: InformacaoDasContasDoItauERPClient,
     @Inject val clientBcb: BcbClient
 ) {
+    private val logger = LoggerFactory.getLogger(this::class.java)
+
     @Transactional
     open fun registrar(@Valid novaChavePix: NovaChavePix): ChavePix {
 
@@ -25,13 +28,19 @@ open class NovaChavePixService(
             throw ChavePixExistenteException("chave pix '${novaChavePix.chavePix}' já cadastrada no sistema")
         }
 
+        // busca dados no ERP do ITAU
         val response = clientItauERP.buscaViaHttp(novaChavePix.clienteId!!, "CONTA_" + novaChavePix.tipoConta!!.name)
         val conta: Conta = response.body()?.toModel() ?: throw NotFoundException("Conta do cliente não encontrada")
 
         val chave = novaChavePix.toModel(conta)
         repository.save(chave)
 
-        val bcbResponse = registraChavePixNoBancoCentral(clientBcb, response.body(), chave)
+        // registra chave no BCB
+        val bcbRequest = CreatePixKeyRequest.paraModeloBcb(chave).also {
+            logger.info("Registrando chave Pix no Banco Central: $it")
+        }
+
+        val bcbResponse = clientBcb.registrarViaHttp(bcbRequest)
         if(bcbResponse.status!= HttpStatus.CREATED){
             throw IllegalStateException("não foi possivel criar chave pix no banco central")
         }
@@ -40,36 +49,4 @@ open class NovaChavePixService(
 
         return chave
     }
-
-    private fun registraChavePixNoBancoCentral(clientBcb: BcbClient,
-                                               response: InformacaoDaContaResponse,
-                                               chave : ChavePix
-    ): HttpResponse<CreatePixKeyResponse?> {
-        return clientBcb.registrarViaHttp(
-            CreatePixKeyRequest(
-                key = chave.chavePix,
-                keyType = when(chave.tipoChave){
-                    TipoDeChave.CPF -> KeyType.CPF
-                    TipoDeChave.EMAIL -> KeyType.EMAIL
-                    TipoDeChave.TEL_CELULAR -> KeyType.PHONE
-                    TipoDeChave.CHAVE_ALEATORIA -> KeyType.RANDOM
-                },
-                bankAccount = BankAccount(
-                    participant = response.instituicao.ispb, //ispb itau 60701190
-                    branch = "0001",
-                    accountNumber = chave.conta.numero,
-                    accountType = when(chave.tipoConta){
-                        TipoDeConta.CORRENTE -> BankAccount.AccountType.CACC
-                        TipoDeConta.POUPANCA -> BankAccount.AccountType.SVGS
-                    }
-                ),
-                owner = Owner(
-                    type = Owner.OwnerType.NATURAL_PERSON,
-                    name = chave.conta.titularNome,
-                    taxIdNumber = chave.conta.titularCpf
-                )
-            )
-        )
-    }
-
 }

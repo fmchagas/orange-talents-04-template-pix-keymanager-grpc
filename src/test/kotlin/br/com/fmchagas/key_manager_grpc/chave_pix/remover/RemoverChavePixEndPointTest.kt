@@ -3,9 +3,8 @@ package br.com.fmchagas.key_manager_grpc.chave_pix.remover
 import br.com.fmchagas.key_manager_grpc.chave_pix.*
 import br.com.fmchagas.key_manager_grpc.chave_pix.clients.BcbClient
 import br.com.fmchagas.key_manager_grpc.chave_pix.clients.DeletePixKeyRequest
-import br.com.fmchagas.key_manager_grpc.chave_pix.registra.createPixKeyRequest
-import br.com.fmchagas.key_manager_grpc.chave_pix.registra.createPixKeyResponseFake
 import br.com.fmchagas.key_manager_grpc.grpc.*
+import br.com.fmchagas.key_manager_grpc.util.ChavePixUtil
 import io.grpc.ManagedChannel
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
@@ -46,7 +45,7 @@ internal class RemoverChavePixEndPointTest(
     @Test
     fun `deve remover chave pix quando existente`() {
         // cenário
-        val existente = repository.save(criaChavePixvalida())
+        val existente = repository.save(ChavePixUtil.criaChavePixvalida())
 
         whenever(
             clientBcb.removerViaHttp(
@@ -78,7 +77,7 @@ internal class RemoverChavePixEndPointTest(
         val error = assertThrows<StatusRuntimeException> {
             clientGrpc.remover(
                 RemoveChavePixRequestGrpc.newBuilder()
-                    .setClienteId(criaChavePixvalida().clienteId.toString())
+                    .setClienteId(ChavePixUtil.CLIENTE_ID)
                     .setPixId("c2621916-90b8-4c44-8a73-16e0c5d5cbc7")
                     .build()
             )
@@ -93,7 +92,7 @@ internal class RemoverChavePixEndPointTest(
     @Test
     fun `nao deve remover chave pix quando existente mas pertence a outro cliente`() {
         // cenário
-        val cliente = repository.save(criaChavePixvalida())
+        val cliente = repository.save(ChavePixUtil.criaChavePixvalida())
 
         val outroCliente = repository.save(
             ChavePix(
@@ -132,7 +131,7 @@ internal class RemoverChavePixEndPointTest(
     @Test
     fun `nao deve remover chave pix existente quando dar erro no servico do banco central`() {
         // cenário
-        val existente = repository.save(criaChavePixvalida())
+        val existente = repository.save(ChavePixUtil.criaChavePixvalida())
 
         whenever(
             clientBcb.removerViaHttp(
@@ -168,20 +167,4 @@ internal class RemoverChavePixEndPointTest(
             return RemoveChavePixServiceGrpc.newBlockingStub(canal)
         }
     }
-
-    fun criaChavePixvalida() = ChavePix(
-        clienteId = UUID.fromString("5260263c-a3c1-4727-ae32-3bdb2538841b"),
-        tipoChave = TipoDeChave.CPF,
-        chavePix = "73007268010",
-        tipoConta = TipoDeConta.CORRENTE,
-        Conta(
-            agencia = "1010",
-            numero = "101011",
-            titularNome = "Teste",
-            titularCpf = "73007268010",
-            instituicaoNome = "Itau S.A",
-            instituicaoIsb = "1010"
-        )
-    )
-
 }
