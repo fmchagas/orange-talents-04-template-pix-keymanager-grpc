@@ -37,6 +37,7 @@ services:
             - BD_PWD=root
             - ERP_ITAU_CONTAS_URL=http://erp-itau:9091/api/v1/clientes
             - BCB_URL=http://bcb:8082
+            #- SERVER_PORT=5052
         depends_on:
             - mysql_key_manager
 
