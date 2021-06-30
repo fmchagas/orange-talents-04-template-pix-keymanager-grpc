@@ -16,6 +16,7 @@ repositories {
 }
 
 micronaut {
+    runtime("netty") // para acesso ao health check
     testRuntime("junit5")
     processing {
         incremental(true)
@@ -35,6 +36,8 @@ dependencies {
     implementation("io.micronaut:micronaut-validation")
     implementation("io.micronaut:micronaut-http-client")
     implementation("org.hibernate:hibernate-validator:7.0.1.Final")
+
+    implementation("io.micronaut:micronaut-management")
 
     // XML
     implementation("io.micronaut.xml:micronaut-jackson-xml")

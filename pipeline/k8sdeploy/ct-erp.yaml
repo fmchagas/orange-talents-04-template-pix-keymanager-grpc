@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: itau-erp
+  labels:
+    app: itau-erp
+spec:
+  containers:
+    - name: itau-erp-container
+      image: public.ecr.aws/d8b2x5c9/orange-stack-sat-itau-erp
+      ports:
+        - containerPort: 9091

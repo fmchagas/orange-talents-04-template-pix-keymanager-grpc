@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-svc-keymanager-grpc
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3306
+      #targetPort: 3306
+  selector:
+    app: db-mysql-key-manager #Link Labels do db-deployment

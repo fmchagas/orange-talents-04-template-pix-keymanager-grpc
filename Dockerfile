@@ -1,9 +1,3 @@
-## Builder Image MVN - descobrir como fazer com gradle
-#FROM maven:3.8.1-openjdk-11-slim AS builder
-#COPY src /usr/src/app/src
-#COPY pom.xml /usr/src/app
-#RUN mvn -f /usr/src/app/pom.xml clean package
-
 ## Runner Image
 # openjdk:11.0.11-jre-slim
 FROM adoptopenjdk/openjdk11:jre11u-alpine-nightly

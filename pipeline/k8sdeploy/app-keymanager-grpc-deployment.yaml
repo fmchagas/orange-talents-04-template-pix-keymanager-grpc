@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: key-manager-grpc-deployment
+#  labels:
+#    app: essa label do Deployment é para outro serviço encontar?
+spec:
+  # metadata:labels + selector:matchLabels + template:metadata:labels ->
+  # deve ter mesmos nomes para funcionar(tanto no app quanto no tier se definido)
+  replicas: 1
+  selector:
+    matchLabels:
+      app: key-manager-grpc #link template:metadata:labels:app
+  template:
+    metadata:
+      name: key-manager-grpc
+      labels:
+        app: key-manager-grpc
+    spec:
+      containers:
+        - name: key-manager-grpc-container
+          image: fmchagas/key-manager-grpc
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 50051
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: keymanager-grpc-configmap

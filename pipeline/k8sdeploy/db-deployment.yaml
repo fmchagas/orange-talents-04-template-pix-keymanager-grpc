@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-deployment
+#  labels:
+#    app: essa label do Deployment é para outro serviço encontar?
+spec:
+  # metadata:labels + selector:matchLabels + template:metadata:labels ->
+  # deve ter mesmos nomes para funcionar(tanto no app quanto no tier se definido)
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-mysql-key-manager #link template:metadata:labels:app
+  template:
+    metadata:
+      name: db-mysql
+      labels:
+        app: db-mysql-key-manager
+    spec:
+      containers:
+        - name: db-mysql-key-manager-container
+          image: mysql:latest
+          ports:
+            - containerPort: 3306
+          envFrom:
+            - configMapRef:
+                name: db-configmap
