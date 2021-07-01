@@ -3,6 +3,7 @@ kind: ConfigMap
 metadata:
   name: db-configmap
 data:
-  MYSQL_ROOT_PASSWORD: "root"
-  MYSQL_DATABASE: "key_manager_grpc"
-  MYSQL_PASSWORD: "root"
+  POSTGRES_DB: key_manager_grpc
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  TZ: GMT

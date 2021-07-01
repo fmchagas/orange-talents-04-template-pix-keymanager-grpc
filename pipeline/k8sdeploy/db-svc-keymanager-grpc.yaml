@@ -5,7 +5,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - port: 3306
-      #targetPort: 3306
+    - port: 5432
+      #targetPort: 5432
   selector:
-    app: db-mysql-key-manager #Link Labels do db-deployment
+    app: db-key-manager #Link Labels do db-deployment

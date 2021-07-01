@@ -10,18 +10,18 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: db-mysql-key-manager #link template:metadata:labels:app
+      app: db-key-manager #link template:metadata:labels:app
   template:
     metadata:
-      name: db-mysql
+      name: db-key-manager
       labels:
-        app: db-mysql-key-manager
+        app: db-key-manager
     spec:
       containers:
-        - name: db-mysql-key-manager-container
-          image: mysql:latest
+        - name: db-km-grpc-container
+          image: postgres:13.3-alpine
           ports:
-            - containerPort: 3306
+            - containerPort: 5432
           envFrom:
             - configMapRef:
                 name: db-configmap
