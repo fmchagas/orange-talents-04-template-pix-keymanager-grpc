@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull
 
 @Entity
 class ChavePix(
-    @field:Column(nullable = false, columnDefinition = "BINARY(16)")
+    @field:NotNull @Column(nullable = false)
     val clienteId: UUID,
 
     @field:NotNull
@@ -39,7 +39,7 @@ class ChavePix(
     var id : Long? = null
 
     @NotNull
-    @Column(nullable = false, columnDefinition = "BINARY(16)")
+    @Column(nullable = false)
     val pixId = UUID.randomUUID()
 
     @NotNull

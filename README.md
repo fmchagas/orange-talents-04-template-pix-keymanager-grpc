@@ -13,7 +13,7 @@ Para executar o projeto, será necessário instalar os seguintes programas:
 - Gradle 7+ (vem integrado com IDE IntelliJ Community)
 - Ferramenta [BloomRPC](https://github.com/uw-labs/bloomrpc/releases)
 - IDE IntelliJ Community
-- MySQL(ou Postgre) 
+- PostgreSQL
 
 ## Observação
 * Framework Micronaut e suas dependência para data/JPA, gRPC, HealthCheck

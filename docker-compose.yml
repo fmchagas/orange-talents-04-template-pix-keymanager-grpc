@@ -11,35 +11,49 @@ services:
         ports: 
             - 9091:9091
 
-    mysql_key_manager:
-        image: mysql:latest
-        container_name: mysql_key_manager
-        environment:
-            - MYSQL_DATABASE=key_manager_grpc
-            - MYSQL_ROOT_PASSWORD=root
-        volumes:
-            - mysql-volume:/var/lib/mysql
-        ports:
-            - 3306:3306
-
     key_manager_grpc:
         build:
             dockerfile: ./Dockerfile
             context: .
         image: fmchagas/key-manager-grpc
-        container_name: key_manager_grpc
+        container_name: key-manager-grpc
         restart: on-failure
         ports:
             - 50051:50051
         environment:
-            - DB_URL=jdbc:mysql://mysql_key_manager/key_manager_grpc
+            - DB_URL=jdbc:postgresql://postgres/key_manager_grpc
             - BD_USER=root
             - BD_PWD=root
             - ERP_ITAU_CONTAS_URL=http://erp-itau:9091/api/v1/clientes
             - BCB_URL=http://bcb:8082
+            - DB_DIALECT=POSTGRES
             #- SERVER_PORT=5052
         depends_on:
-            - mysql_key_manager
+            - postgres
+
+    postgres:
+        image: postgres:alpine
+        container_name: db-km-grpc-container
+        environment:
+            - POSTGRES_DB=key_manager_grpc
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+            - TZ=GMT
+        volumes:
+            - postgres-volume-key-manager-grpc:/var/lib/postgresql/data
+        ports:
+            - 5432:5432
+
+    pg_admin:
+        image: dpage/pgadmin4:latest
+        container_name: pg_admin
+        environment:
+            - PGADMIN_DEFAULT_EMAIL=user@domain.com
+            - PGADMIN_DEFAULT_PASSWORD=SuperSecret
+        ports:
+            - 80:80
+        depends_on:
+            - postgres
 
 volumes:
-    mysql-volume:
+    postgres-volume-key-manager-grpc:
