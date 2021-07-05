@@ -31,12 +31,10 @@ class ChavePix(
     @Embedded
     val conta: Conta
 ) {
-    fun atualizarChave(chavePix: String) {
-        this.chavePix = chavePix
-    }
 
-    @Id @GeneratedValue(strategy = IDENTITY)
-    var id : Long? = null
+    @Id
+    @GeneratedValue(strategy = IDENTITY)
+    var id: Long? = null
 
     @NotNull
     @Column(nullable = false)
@@ -45,4 +43,12 @@ class ChavePix(
     @NotNull
     @Column(nullable = false)
     val criadoEm = Instant.now()
+
+    fun atualizarChave(chavePix: String) {
+        if (isAleatoria()) {
+            this.chavePix = chavePix
+        }
+    }
+
+    private fun isAleatoria() = tipoChave == TipoDeChave.CHAVE_ALEATORIA
 }
