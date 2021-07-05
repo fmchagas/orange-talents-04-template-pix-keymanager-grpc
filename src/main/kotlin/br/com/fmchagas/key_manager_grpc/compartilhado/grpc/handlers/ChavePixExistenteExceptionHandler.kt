@@ -12,7 +12,7 @@ class ChavePixExistenteExceptionHandler : ExceptionHandler<ChavePixExistenteExce
         return ExceptionHandler.StatusWithDetails(
             Status.ALREADY_EXISTS
                 .withDescription(e.message)
-                .withCause(e)
+                //.withCause(e)
         )
     }
 
