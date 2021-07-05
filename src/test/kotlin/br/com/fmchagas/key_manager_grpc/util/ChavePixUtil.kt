@@ -49,12 +49,27 @@ class ChavePixUtil{
             )
         }
 
-        fun criaChavePixvalida() = ChavePix(
+        fun criaChavePixvalidaTipoCpf() = ChavePix(
             clienteId = UUID.fromString("5260263c-a3c1-4727-ae32-3bdb2538841b"),
             tipoChave = TipoDeChave.CPF,
             chavePix = "73007268010",
             tipoConta = TipoDeConta.CORRENTE,
             Conta(
+                agencia = "1010",
+                numero = "101011",
+                titularNome = "Teste",
+                titularCpf = "73007268010",
+                instituicaoNome = "UNIBANCO ITAU",
+                instituicaoIsb = "1010"
+            )
+        )
+
+        fun criaChavePixvalidaParametrizavel(tipo: TipoDeChave, chavePix: String) = ChavePix(
+            clienteId = UUID.randomUUID(),
+            tipoChave = tipo,
+            chavePix = chavePix,
+            tipoConta = TipoDeConta.CORRENTE,
+            conta = Conta(
                 agencia = "1010",
                 numero = "101011",
                 titularNome = "Teste",

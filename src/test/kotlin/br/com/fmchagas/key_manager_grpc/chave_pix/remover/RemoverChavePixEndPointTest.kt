@@ -45,7 +45,7 @@ internal class RemoverChavePixEndPointTest(
     @Test
     fun `deve remover chave pix quando existente`() {
         // cenário
-        val existente = repository.save(ChavePixUtil.criaChavePixvalida())
+        val existente = repository.save(ChavePixUtil.criaChavePixvalidaTipoCpf())
 
         whenever(
             clientBcb.removerViaHttp(
@@ -92,7 +92,7 @@ internal class RemoverChavePixEndPointTest(
     @Test
     fun `nao deve remover chave pix quando existente mas pertence a outro cliente`() {
         // cenário
-        val cliente = repository.save(ChavePixUtil.criaChavePixvalida())
+        val cliente = repository.save(ChavePixUtil.criaChavePixvalidaTipoCpf())
 
         val outroCliente = repository.save(
             ChavePix(
@@ -131,7 +131,7 @@ internal class RemoverChavePixEndPointTest(
     @Test
     fun `nao deve remover chave pix existente quando dar erro no servico do banco central`() {
         // cenário
-        val existente = repository.save(ChavePixUtil.criaChavePixvalida())
+        val existente = repository.save(ChavePixUtil.criaChavePixvalidaTipoCpf())
 
         whenever(
             clientBcb.removerViaHttp(
