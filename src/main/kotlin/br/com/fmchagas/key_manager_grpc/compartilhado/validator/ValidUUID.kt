@@ -3,13 +3,10 @@ package br.com.fmchagas.key_manager_grpc.compartilhado.validator
 import io.micronaut.core.annotation.AnnotationValue
 import io.micronaut.validation.validator.constraints.ConstraintValidator
 import io.micronaut.validation.validator.constraints.ConstraintValidatorContext
-import java.lang.IllegalArgumentException
-import java.lang.annotation.ElementType
 import java.util.*
 import javax.inject.Singleton
 import javax.validation.Constraint
 import javax.validation.ReportAsSingleViolation
-import javax.validation.constraints.Pattern
 import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.annotation.AnnotationTarget.*
 

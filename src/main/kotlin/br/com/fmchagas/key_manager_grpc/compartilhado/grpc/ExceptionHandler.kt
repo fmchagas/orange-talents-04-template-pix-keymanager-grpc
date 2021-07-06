@@ -5,7 +5,7 @@ import io.grpc.StatusRuntimeException
 import io.grpc.protobuf.StatusProto
 import io.grpc.Metadata
 
-interface ExceptionHandler<E: Exception> {
+interface ExceptionHandler<in E: Exception> {
 
     /**
      * Lidar com a exceção e mapeá-la para StatusWithDetails
@@ -25,7 +25,7 @@ interface ExceptionHandler<E: Exception> {
         constructor(sp: com.google.rpc.Status) : this(StatusProto.toStatusRuntimeException(sp))
 
         fun asRuntimeException(): StatusRuntimeException{
-            return status.asRuntimeException()
+            return status.asRuntimeException(metadata)
         }
     }
 }

@@ -1,12 +1,14 @@
 package br.com.fmchagas.key_manager_grpc.chave_pix.registra
 
 import br.com.fmchagas.key_manager_grpc.chave_pix.*
-import br.com.fmchagas.key_manager_grpc.chave_pix.clients.*
+import br.com.fmchagas.key_manager_grpc.chave_pix.clients.BcbClient
+import br.com.fmchagas.key_manager_grpc.chave_pix.clients.InformacaoDasContasDoItauERPClient
 import br.com.fmchagas.key_manager_grpc.grpc.NovaChavePixRequest
 import br.com.fmchagas.key_manager_grpc.grpc.NovaChavePixServiceGrpc
 import br.com.fmchagas.key_manager_grpc.grpc.TipoChave
 import br.com.fmchagas.key_manager_grpc.grpc.TipoConta
 import br.com.fmchagas.key_manager_grpc.util.ChavePixUtil
+import com.google.rpc.BadRequest
 import io.grpc.ManagedChannel
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
@@ -15,17 +17,20 @@ import io.micronaut.grpc.annotation.GrpcChannel
 import io.micronaut.grpc.server.GrpcServerChannel
 import io.micronaut.http.HttpResponse
 import io.micronaut.test.annotation.MockBean
-import javax.inject.Singleton
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import org.hamcrest.MatcherAssert
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import java.util.*
 import javax.inject.Inject
-import org.mockito.kotlin.*
+import javax.inject.Singleton
 
 @MicronautTest(transactional = false)
 internal class NovaChavePixEndPointTest(
@@ -79,16 +84,35 @@ internal class NovaChavePixEndPointTest(
         val error = assertThrows<StatusRuntimeException> {
             clientGrpc.registrar(
                 NovaChavePixRequest.newBuilder()
-                    .setClienteId("invalido")
-                    .setTipoChave(TipoChave.CPF)
-                    .setChaveDoPix("")
-                    .setTipoConta(TipoConta.POUPANCA)
+                    .setClienteId("x")
                     .build()
             )
         }
 
         with(error) {
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
+            assertEquals("Dados inválidos", status.description)
+
+            val detalhes = io.grpc.protobuf.StatusProto.fromThrowable(this)
+                ?.detailsList?.get(0)!!
+                .unpack(BadRequest::class.java)
+
+            val map = detalhes.fieldViolationsList.map {
+                it.field to it.description
+            }
+
+            assertThat(
+                "não é um formato válido de UUID",
+                map.contains(Pair("clienteId", "não é um formato válido de UUID"))
+            )
+
+            assertThat(
+                "chave Pix inválida",
+                map.contains(Pair("novaChavePix", "chave Pix inválida"))
+            )
+
+            // map.contains(Pair("tipoChave","must not be null"))
+            // map.contains(Pair("tipoConta","must not be null"))
         }
     }
 
